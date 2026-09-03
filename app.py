@@ -1,28 +1,20 @@
 #!/usr/bin/env python3
-import os
-
 import aws_cdk as cdk
-
-from car_rental_platform.car_rental_platform_stack import CarRentalPlatformStack
-
+from car_rental_platform.database_stack import DatabaseStack
+from car_rental_platform.api_stack import ApiStack
 
 app = cdk.App()
-CarRentalPlatformStack(app, "CarRentalPlatformStack",
-    # If you don't specify 'env', this stack will be environment-agnostic.
-    # Account/Region-dependent features and context lookups will not work,
-    # but a single synthesized template can be deployed anywhere.
 
-    # Uncomment the next line to specialize this stack for the AWS Account
-    # and Region that are implied by the current CLI configuration.
+# Step 1: Instantiate Database Stack
+db_stack = DatabaseStack(app, "DatabaseStack")
 
-    #env=cdk.Environment(account=os.getenv('CDK_DEFAULT_ACCOUNT'), region=os.getenv('CDK_DEFAULT_REGION')),
-
-    # Uncomment the next line if you know exactly what Account and Region you
-    # want to deploy the stack to. */
-
-    #env=cdk.Environment(account='123456789012', region='us-east-1'),
-
-    # For more information, see https://docs.aws.amazon.com/cdk/latest/guide/environments.html
-    )
+# Step 2: Instantiate API Stack and pass all tables
+api_stack = ApiStack(
+    app, 
+    "ApiStack",
+    cars_table=db_stack.cars_table,
+    users_table=db_stack.users_table,
+    bookings_table=db_stack.bookings_table
+)
 
 app.synth()
